@@ -210,7 +210,7 @@ build:dbg --copt -DDEBUG_BUILD
 # Config to build TPU backend
 build:tpu --define=with_tpu_support=true
 
-build:tensorrt --action_env TF_NEED_TENSORRT=1
+build:tensorrt --define=__TENSORFLOW_STATIC_TENSORRT__=1 --action_env TF_NEED_TENSORRT=1
 
 build:rocm --crosstool_top=@local_config_rocm//crosstool:toolchain
 build:rocm --define=using_rocm=true --define=using_rocm_hipcc=true

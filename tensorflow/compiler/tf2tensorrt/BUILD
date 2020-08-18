@@ -52,10 +52,7 @@ cc_library(
 
 alias(
     name = "tensorrt_lib",
-    actual = select({
-        "//tensorflow:oss": ":tensorrt_stub",
-        "//conditions:default": "@local_config_tensorrt//:tensorrt",
-    }),
+    actual = "@local_config_tensorrt//:tensorrt",
     visibility = ["//visibility:private"],
 )
 

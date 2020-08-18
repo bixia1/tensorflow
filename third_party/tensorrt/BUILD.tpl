@@ -10,6 +10,11 @@ package(default_visibility = ["//visibility:public"])
 
 exports_files(["LICENSE"])
 
+config_setting(
+    name = "use_static_tensorrt",
+    values = {"define": "__TENSORFLOW_STATIC_TENSORRT__=1"},
+)
+
 cc_library(
     name = "tensorrt_headers",
     hdrs = [
@@ -22,9 +27,15 @@ cc_library(
 
 cc_library(
     name = "tensorrt",
-    srcs = [":tensorrt_lib"],
+    srcs = select({
+        ":use_static_tensorrt": [":tensorrt_static_lib"],
+        "//conditions:default": [":tensorrt_lib"],
+    }),
     copts = cuda_default_copts(),
-    data = [":tensorrt_lib"],
+    data = select({
+        ":use_static_tensorrt": [],
+        "//conditions:default": [":tensorrt_lib"],
+    }),
     linkstatic = 1,
     deps = [
         ":tensorrt_headers",

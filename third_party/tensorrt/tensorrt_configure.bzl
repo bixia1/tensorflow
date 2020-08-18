@@ -24,7 +24,7 @@ _TF_TENSORRT_CONFIG_REPO = "TF_TENSORRT_CONFIG_REPO"
 _TF_TENSORRT_VERSION = "TF_TENSORRT_VERSION"
 _TF_NEED_TENSORRT = "TF_NEED_TENSORRT"
 
-_TF_TENSORRT_LIBS = ["nvinfer", "nvinfer_plugin"]
+_TF_TENSORRT_LIBS = ["nvinfer", "nvinfer_plugin", "myelin_compiler", "myelin_executor", "myelin_pattern_library", "myelin_pattern_runtime", "nvrtc"]
 _TF_TENSORRT_HEADERS = ["NvInfer.h", "NvUtils.h", "NvInferPlugin.h"]
 _TF_TENSORRT_HEADERS_V6 = [
     "NvInfer.h",
@@ -101,6 +101,7 @@ def _create_local_tensorrt_repository(repository_ctx):
 
     # Copy the library and header files.
     libraries = [lib_name(lib, cpu_value, trt_version) for lib in _TF_TENSORRT_LIBS]
+    static_libraries = [lib_name(lib, cpu_value, trt_version, static=True) for lib in _TF_TENSORRT_LIBS]
     library_dir = config["tensorrt_library_dir"] + "/"
     headers = _get_tensorrt_headers(trt_version)
     include_dir = config["tensorrt_include_dir"] + "/"
@@ -110,6 +111,13 @@ def _create_local_tensorrt_repository(repository_ctx):
             name = "tensorrt_lib",
             srcs = [library_dir + library for library in libraries],
             outs = ["tensorrt/lib/" + library for library in libraries],
+        ),
+	make_copy_files_rule(
+            repository_ctx,
+            name = "tensorrt_static_lib",
+	    #/tf is my directories with the static libs, this is to workaround the fact that I don't have permission to copy the libs to the container system directory
+            srcs = ["/tf/" + library for library in static_libraries],
+            outs = ["tensorrt/lib/" + library for library in static_libraries],
         ),
         make_copy_files_rule(
             repository_ctx,
